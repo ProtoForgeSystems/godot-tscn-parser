@@ -103,8 +103,8 @@ public class GodotSceneTests
             [node name="Root" type="Node"]
             some_int = 42
             """);
-        Assert.True(scene.Nodes[0].Properties.ContainsKey("some_int"));
-        var lit = Assert.IsType<LiteralValue>(scene.Nodes[0].Properties["some_int"]);
+        Assert.True(scene.Nodes[0].Properties.TryGetValue("some_int", out var property));
+        var lit = Assert.IsType<LiteralValue>(property);
         Assert.Equal(42.0, lit.Value);
     }
 
