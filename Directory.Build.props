@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <!-- Single place for version and repo metadata; used by all projects and NuGet pack -->
+    <Version>1.0.0</Version>
+    <Authors>ProtoForge Systems</Authors>
+    <Company>ProtoForge Systems</Company>
+    <RepositoryUrl>https://github.com/ProtoForgeSystems/godot-tscn-parser</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

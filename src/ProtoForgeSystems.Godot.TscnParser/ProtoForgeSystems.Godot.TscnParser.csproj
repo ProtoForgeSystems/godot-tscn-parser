@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ProtoForgeSystems.Godot.TscnParser</RootNamespace>
+    <AssemblyName>ProtoForgeSystems.Godot.TscnParser</AssemblyName>
+
+    <!-- Code Analysis -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- NuGet Package Metadata (Version, Authors, Company, RepositoryUrl from Directory.Build.props) -->
+    <PackageId>ProtoForgeSystems.Godot.TscnParser</PackageId>
+    <Description>Zero-dependency .NET parser for Godot .tscn (text scene) files. Produces a typed scene graph and value model without requiring the Godot engine.</Description>
+    <PackageTags>godot;tscn;parser;scene;dotnet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- No external dependencies - pure .NET parsing library; package readme is repo root README -->
+    <None Include="../../README.md" Link="README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Code Quality Analyzers (development-only, not shipped with package) -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <!-- StyleCop disabled initially - too aggressive with 1800+ style warnings -->
+    <!-- <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference> -->
+    <!-- SonarAnalyzer disabled initially - evaluate after .NET analyzers -->
+    <!-- <PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference> -->
+  </ItemGroup>
+</Project>
