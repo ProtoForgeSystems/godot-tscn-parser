@@ -88,11 +88,11 @@ public class GodotSceneTests
             [node name="A1" type="Node" parent="A"]
             """);
         var index = scene.BuildParentIndex();
-        Assert.True(index.ContainsKey("."));
-        Assert.Equal(2, index["."].Count);
-        Assert.True(index.ContainsKey("A"));
-        Assert.Single(index["A"]);
-        Assert.Equal("A1", index["A"][0].Name);
+        Assert.True(index.TryGetValue(".", out var rootChildren));
+        Assert.Equal(2, rootChildren.Count);
+        Assert.True(index.TryGetValue("A", out var aChildren));
+        Assert.Single(aChildren);
+        Assert.Equal("A1", aChildren[0].Name);
     }
 
     [Fact]
