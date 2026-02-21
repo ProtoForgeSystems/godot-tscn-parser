@@ -185,6 +185,66 @@ public class TscnValueExtractorTests
     }
 
     [Fact]
+    public void ExtractValue_PackedVector3Array_Empty_ReturnsEmptyList()
+    {
+        var value = TscnValueExtractor.ExtractValue("PackedVector3Array()");
+        var arr = Assert.IsType<PackedVector3ArrayValue>(value);
+        Assert.Empty(arr.Values);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedVector3Array_SinglePoint_ReturnsSingleVector3()
+    {
+        var value = TscnValueExtractor.ExtractValue("PackedVector3Array(1.5, 2.0, 3.5)");
+        var arr = Assert.IsType<PackedVector3ArrayValue>(value);
+        Assert.Single(arr.Values);
+        Assert.Equal(1.5, arr.Values[0].X);
+        Assert.Equal(2.0, arr.Values[0].Y);
+        Assert.Equal(3.5, arr.Values[0].Z);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedVector3Array_MultiplePoints_ReturnsAllVectors()
+    {
+        var value = TscnValueExtractor.ExtractValue(
+            "PackedVector3Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)");
+        var arr = Assert.IsType<PackedVector3ArrayValue>(value);
+        Assert.Equal(3, arr.Values.Count);
+        Assert.Equal(1.0, arr.Values[0].X);
+        Assert.Equal(2.0, arr.Values[0].Y);
+        Assert.Equal(3.0, arr.Values[0].Z);
+        Assert.Equal(4.0, arr.Values[1].X);
+        Assert.Equal(5.0, arr.Values[1].Y);
+        Assert.Equal(6.0, arr.Values[1].Z);
+        Assert.Equal(7.0, arr.Values[2].X);
+        Assert.Equal(8.0, arr.Values[2].Y);
+        Assert.Equal(9.0, arr.Values[2].Z);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedVector3Array_InvalidCount_Throws()
+    {
+        var ex = Assert.Throws<ValueParseException>(() =>
+            TscnValueExtractor.ExtractValue("PackedVector3Array(1.0, 2.0)"));
+        Assert.Contains("multiple of 3", ex.Message);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedVector3Array_DeadTreeHullValues_ParsesCorrectly()
+    {
+        var value = TscnValueExtractor.ExtractValue(
+            "PackedVector3Array(88.421555, 449.2328, 45.756943, 48.99791, 340.80713, 16.183426, 48.99791, 340.80713, 26.043194)");
+        var arr = Assert.IsType<PackedVector3ArrayValue>(value);
+        Assert.Equal(3, arr.Values.Count);
+        Assert.Equal(88.421555, arr.Values[0].X, 4);
+        Assert.Equal(449.2328, arr.Values[0].Y, 4);
+        Assert.Equal(45.756943, arr.Values[0].Z, 4);
+        Assert.Equal(48.99791, arr.Values[1].X, 4);
+        Assert.Equal(340.80713, arr.Values[1].Y, 4);
+        Assert.Equal(16.183426, arr.Values[1].Z, 4);
+    }
+
+    [Fact]
     public void ExtractValue_TypedArray_ReturnsArrayValue()
     {
         var value = TscnValueExtractor.ExtractValue("Array[int]([1, 2, 3])");
