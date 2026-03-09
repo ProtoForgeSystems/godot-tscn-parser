@@ -63,5 +63,8 @@ public record PlaneValue(Vector3Value Normal, double Distance) : IGodotValue;
 /// <summary>PackedInt32Array(...) - packed array of 32-bit integers</summary>
 public record PackedInt32ArrayValue(List<int> Values) : IGodotValue;
 
+/// <summary>PackedStringArray(...) - packed array of strings</summary>
+public record PackedStringArrayValue(List<string> Values) : IGodotValue;
+
 /// <summary>PackedVector3Array(...) - packed array of Vector3 values</summary>
 public record PackedVector3ArrayValue(List<Vector3Value> Values) : IGodotValue;

@@ -422,6 +422,7 @@ public class ValueParser
             "AABB" => ParseAABB(args, typeToken),
             "Plane" => ParsePlane(args, typeToken),
             "PackedInt32Array" => ParsePackedInt32Array(args, typeToken),
+            "PackedStringArray" => ParsePackedStringArray(args, typeToken),
             "PackedVector3Array" => ParsePackedVector3Array(args, typeToken),
             _ => throw new ValueParseException($"Unrecognized type: {typeName}", typeToken)
         };
@@ -586,6 +587,14 @@ public class ValueParser
             .Select(arg => (int)ExtractNumber(arg, context))
             .ToList();
         return new PackedInt32ArrayValue(values);
+    }
+
+    private static PackedStringArrayValue ParsePackedStringArray(List<IGodotValue> args, Token context)
+    {
+        var values = args
+            .Select(arg => ExtractString(arg, context))
+            .ToList();
+        return new PackedStringArrayValue(values);
     }
 
     private static PackedVector3ArrayValue ParsePackedVector3Array(List<IGodotValue> args, Token context)
