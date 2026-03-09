@@ -242,6 +242,44 @@ public class TscnValueExtractorTests
         Assert.Equal(48.99791, arr.Values[1].X, 4);
         Assert.Equal(340.80713, arr.Values[1].Y, 4);
         Assert.Equal(16.183426, arr.Values[1].Z, 4);
+        Assert.Equal(48.99791, arr.Values[2].X, 4);
+        Assert.Equal(340.80713, arr.Values[2].Y, 4);
+        Assert.Equal(26.043194, arr.Values[2].Z, 4);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedStringArray_Empty_ReturnsEmptyList()
+    {
+        var value = TscnValueExtractor.ExtractValue("PackedStringArray()");
+        var arr = Assert.IsType<PackedStringArrayValue>(value);
+        Assert.Empty(arr.Values);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedStringArray_SingleElement_ReturnsSingleString()
+    {
+        var value = TscnValueExtractor.ExtractValue("PackedStringArray(\"hello\")");
+        var arr = Assert.IsType<PackedStringArrayValue>(value);
+        Assert.Single(arr.Values);
+        Assert.Equal("hello", arr.Values[0]);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedStringArray_MultipleElements_ReturnsAllStrings()
+    {
+        var value = TscnValueExtractor.ExtractValue("PackedStringArray(\"foo\", \"bar\", \"baz\")");
+        var arr = Assert.IsType<PackedStringArrayValue>(value);
+        Assert.Equal(3, arr.Values.Count);
+        Assert.Equal("foo", arr.Values[0]);
+        Assert.Equal("bar", arr.Values[1]);
+        Assert.Equal("baz", arr.Values[2]);
+    }
+
+    [Fact]
+    public void ExtractValue_PackedStringArray_NonStringElement_Throws()
+    {
+        Assert.Throws<ValueParseException>(() =>
+            TscnValueExtractor.ExtractValue("PackedStringArray(42)"));
     }
 
     [Fact]
