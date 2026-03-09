@@ -597,6 +597,7 @@ public class ValueParser
         return new PackedStringArrayValue(values);
     }
 
+
     private static PackedVector3ArrayValue ParsePackedVector3Array(List<IGodotValue> args, Token context)
     {
         if (args.Count % 3 != 0)
