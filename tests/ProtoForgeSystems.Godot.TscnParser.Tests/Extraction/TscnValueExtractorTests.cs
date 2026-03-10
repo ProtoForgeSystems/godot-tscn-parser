@@ -305,7 +305,7 @@ public class TscnValueExtractorTests
         var unknown = Assert.IsType<UnknownTypedValue>(value);
         Assert.Equal("NotAType", unknown.TypeName);
         var arg = Assert.Single(unknown.Args);
-        Assert.Equal(new LiteralValue(1), arg);
+        Assert.Equal(new LiteralValue(1.0), arg);
     }
 
     [Fact]
