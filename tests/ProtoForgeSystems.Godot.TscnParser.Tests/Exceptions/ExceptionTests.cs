@@ -21,7 +21,7 @@ public class ExceptionTests
     public void ValueParseException_ContainsMessageAndToken()
     {
         var ex = Assert.Throws<ValueParseException>(() =>
-            TscnValueExtractor.ExtractValue("NotAType(1)"));
+            TscnValueExtractor.ExtractValue("AABB(1, 2, 3)"));
         Assert.NotNull(ex.Message);
         Assert.NotNull(ex.FailedToken);
         Assert.IsAssignableFrom<TscnParseException>(ex);

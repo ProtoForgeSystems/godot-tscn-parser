@@ -299,10 +299,13 @@ public class TscnValueExtractorTests
     }
 
     [Fact]
-    public void ExtractValue_InvalidValue_Throws()
+    public void ExtractValue_UnknownType_ReturnsUnknownTypedValue()
     {
-        Assert.Throws<ValueParseException>(() =>
-            TscnValueExtractor.ExtractValue("NotAType(1)"));
+        var value = TscnValueExtractor.ExtractValue("NotAType(1)");
+        var unknown = Assert.IsType<UnknownTypedValue>(value);
+        Assert.Equal("NotAType", unknown.TypeName);
+        var arg = Assert.Single(unknown.Args);
+        Assert.Equal(new LiteralValue(1), arg);
     }
 
     [Fact]
@@ -311,5 +314,30 @@ public class TscnValueExtractorTests
         var ex = Assert.Throws<ValueParseException>(() =>
             TscnValueExtractor.ExtractValue(""));
         Assert.Contains("Unexpected", ex.Message);
+    }
+
+    [Fact]
+    public void ExtractValue_AABB_SixArgs_ReturnsAABBValue()
+    {
+        var value = TscnValueExtractor.ExtractValue("AABB(1, 2, 3, 4, 5, 6)");
+        var aabb = Assert.IsType<AABBValue>(value);
+        Assert.Equal(new Vector3Value(1, 2, 3), aabb.Position);
+        Assert.Equal(new Vector3Value(4, 5, 6), aabb.Size);
+    }
+
+    [Fact]
+    public void ExtractValue_AABB_TwoVector3Args_ReturnsAABBValue()
+    {
+        var value = TscnValueExtractor.ExtractValue("AABB(Vector3(1, 2, 3), Vector3(4, 5, 6))");
+        var aabb = Assert.IsType<AABBValue>(value);
+        Assert.Equal(new Vector3Value(1, 2, 3), aabb.Position);
+        Assert.Equal(new Vector3Value(4, 5, 6), aabb.Size);
+    }
+
+    [Fact]
+    public void ExtractValue_AABB_InvalidArgCount_Throws()
+    {
+        Assert.Throws<ValueParseException>(() =>
+            TscnValueExtractor.ExtractValue("AABB(1, 2, 3)"));
     }
 }
