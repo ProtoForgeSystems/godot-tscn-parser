@@ -69,3 +69,6 @@ public record PackedStringArrayValue(List<string> Values) : IGodotValue;
 
 /// <summary>PackedVector3Array(...) - packed array of Vector3 values</summary>
 public record PackedVector3ArrayValue(List<Vector3Value> Values) : IGodotValue;
+
+/// <summary>Unknown typed value: TypeName(arg1, arg2, ...) - preserves type name for diagnostics</summary>
+public record UnknownTypedValue(string TypeName, List<IGodotValue> Args) : IGodotValue;

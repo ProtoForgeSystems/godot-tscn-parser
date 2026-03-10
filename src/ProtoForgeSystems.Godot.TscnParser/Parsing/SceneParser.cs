@@ -411,10 +411,16 @@ public class SceneParser
 
     private void SkipToNextPropertyOrTag()
     {
-        while (_position < _tokens.Count &&
-               PeekToken().Type != TokenType.BracketOpen &&
-               PeekToken().Type != TokenType.Identifier)
+        // Advance until we find a section header ([) or a valid property assignment (Identifier =)
+        while (_position < _tokens.Count && PeekToken().Type != TokenType.BracketOpen)
         {
+            // Check for Identifier followed by '=' — that's the start of the next property
+            if (PeekToken().Type == TokenType.Identifier &&
+                _position + 1 < _tokens.Count &&
+                _tokens[_position + 1].Type == TokenType.Equal)
+            {
+                return;
+            }
             _position++;
         }
     }
