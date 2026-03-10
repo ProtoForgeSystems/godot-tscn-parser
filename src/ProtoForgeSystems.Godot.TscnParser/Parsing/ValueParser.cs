@@ -424,7 +424,7 @@ public class ValueParser
             "PackedInt32Array" => ParsePackedInt32Array(args, typeToken),
             "PackedStringArray" => ParsePackedStringArray(args, typeToken),
             "PackedVector3Array" => ParsePackedVector3Array(args, typeToken),
-            _ => throw new ValueParseException($"Unrecognized type: {typeName}", typeToken)
+            _ => new UnknownTypedValue(typeName, args)
         };
     }
     
@@ -558,15 +558,31 @@ public class ValueParser
 
     private static AABBValue ParseAABB(List<IGodotValue> args, Token context)
     {
-        if (args.Count != 2)
-            throw new ValueParseException($"AABB expects 2 arguments (position and size), got {args.Count}", context);
+        // Godot serializes AABB as 6 flat numbers: AABB(px, py, pz, sx, sy, sz)
+        if (args.Count == 6)
+        {
+            var position = new Vector3Value(
+                ExtractNumber(args[0], context),
+                ExtractNumber(args[1], context),
+                ExtractNumber(args[2], context));
+            var size = new Vector3Value(
+                ExtractNumber(args[3], context),
+                ExtractNumber(args[4], context),
+                ExtractNumber(args[5], context));
+            return new AABBValue(position, size);
+        }
 
-        if (args[0] is not Vector3Value position)
-            throw new ValueParseException("AABB position must be Vector3", context);
-        if (args[1] is not Vector3Value size)
-            throw new ValueParseException("AABB size must be Vector3", context);
+        // Also accept pre-parsed 2-arg form: AABB(Vector3(...), Vector3(...))
+        if (args.Count == 2)
+        {
+            if (args[0] is not Vector3Value position)
+                throw new ValueParseException("AABB position must be Vector3", context);
+            if (args[1] is not Vector3Value size)
+                throw new ValueParseException("AABB size must be Vector3", context);
+            return new AABBValue(position, size);
+        }
 
-        return new AABBValue(position, size);
+        throw new ValueParseException($"AABB expects 6 or 2 arguments, got {args.Count}", context);
     }
 
     private static PlaneValue ParsePlane(List<IGodotValue> args, Token context)
