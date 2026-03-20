@@ -87,6 +87,9 @@ public class ValueParser
             return literal!; // TryParseLiteral guarantees non-null when returning true
         }
 
+        if (IsTypedDictionary(tokens, startIndex))
+            return ParseTypedDictionary(tokens, startIndex, out endIndex);
+
         if (IsTypedArray(tokens, startIndex))
             return ParseTypedArray(tokens, startIndex, out endIndex);
 
@@ -123,6 +126,13 @@ public class ValueParser
     /// <summary>Check if token sequence represents a typed constructor (Type(...))</summary>
     private static bool IsTypedConstructor(List<Token> tokens, int pos) =>
         pos + 1 < tokens.Count && tokens[pos + 1].Type == TokenType.ParenOpen;
+
+    /// <summary>Check if token sequence represents a typed dictionary (Dictionary[K, V](...))</summary>
+    private static bool IsTypedDictionary(List<Token> tokens, int pos) =>
+        pos + 1 < tokens.Count
+        && tokens[pos].Type == TokenType.Identifier
+        && tokens[pos].Value == "Dictionary"
+        && tokens[pos + 1].Type == TokenType.BracketOpen;
 
     /// <summary>Parse numeric literal token</summary>
     private static LiteralValue ParseLiteralNumber(Token token, int startIndex, out int endIndex)
@@ -219,10 +229,13 @@ public class ValueParser
     private (string key, IGodotValue value) ParseDictionaryPair(List<Token> tokens, ref int pos)
     {
         var keyToken = GetTokenOrThrow(tokens, pos, "dictionary key");
-        if (keyToken.Type != TokenType.String)
-            throw new ValueParseException("Dictionary key must be a string", keyToken);
-
-        var key = keyToken.AsStringValue();
+        string key = keyToken.Type switch
+        {
+            TokenType.String => keyToken.AsStringValue(),
+            TokenType.Number => keyToken.Value,
+            TokenType.Identifier => keyToken.Value,
+            _ => throw new ValueParseException($"Dictionary key must be a string, number, or identifier, got {keyToken.Type}", keyToken)
+        };
         pos++;
 
         ExpectToken(tokens, pos, TokenType.Colon, ":");
@@ -341,6 +354,50 @@ public class ValueParser
             return pos;
 
         throw new ValueParseException($"Expected , or ) in typed array, got {token.Type}", token);
+    }
+
+    /// <summary>
+    /// Parse a typed dictionary: Dictionary[KeyType, ValueType]({key: value, ...})
+    /// Godot 4.x syntax for typed dictionaries like Dictionary[int, int]({1: 5})
+    /// </summary>
+    private DictionaryValue ParseTypedDictionary(List<Token> tokens, int startIndex, out int endIndex)
+    {
+        ExpectToken(tokens, startIndex, TokenType.Identifier, "Dictionary identifier");
+        int pos = startIndex + 1;
+
+        ParseTypedDictionaryHeader(tokens, ref pos);
+
+        ExpectToken(tokens, pos, TokenType.ParenOpen, "(");
+        pos++;
+
+        var dict = ParseDictionary(tokens, pos, out pos);
+
+        ExpectToken(tokens, pos, TokenType.ParenClose, ")");
+        endIndex = pos + 1;
+        return dict;
+    }
+
+    /// <summary>Parse typed dictionary header: [KeyType, ValueType] portion</summary>
+    private static void ParseTypedDictionaryHeader(List<Token> tokens, ref int pos)
+    {
+        ExpectToken(tokens, pos, TokenType.BracketOpen, "[");
+        pos++;
+
+        var keyTypeToken = GetTokenOrThrow(tokens, pos, "key type identifier");
+        if (keyTypeToken.Type != TokenType.Identifier)
+            throw new ValueParseException("Expected key type identifier in typed dictionary", keyTypeToken);
+        pos++;
+
+        ExpectToken(tokens, pos, TokenType.Comma, ",");
+        pos++;
+
+        var valueTypeToken = GetTokenOrThrow(tokens, pos, "value type identifier");
+        if (valueTypeToken.Type != TokenType.Identifier)
+            throw new ValueParseException("Expected value type identifier in typed dictionary", valueTypeToken);
+        pos++;
+
+        ExpectToken(tokens, pos, TokenType.BracketClose, "]");
+        pos++;
     }
 
     /// <summary>Parse a typed value: TypeName(arg1, arg2, ...)</summary>
