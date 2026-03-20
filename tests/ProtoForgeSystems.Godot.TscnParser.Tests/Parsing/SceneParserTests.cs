@@ -192,4 +192,49 @@ public class SceneParserTests
         var scene = _parser.ParseContent(content);
         Assert.Equal(2, scene.TotalResources);
     }
+
+    [Fact]
+    public void ParseContent_NodeWithTypedDictionary_ParsesProperty()
+    {
+        var content = """
+            [gd_scene format=3]
+
+            [node name="Root" type="Node"]
+
+            [node name="LifeformSpawn" type="Marker3D" parent="."]
+            SecondsBetween = 60
+            SpawnCounts = Dictionary[int, int]({
+            1: 5
+            })
+            """;
+        var scene = _parser.ParseContent(content);
+        var node = scene.FindNodeByName("LifeformSpawn");
+        Assert.NotNull(node);
+        Assert.True(node.Properties.ContainsKey("SpawnCounts"));
+        var dict = Assert.IsType<DictionaryValue>(node.Properties["SpawnCounts"]);
+        Assert.Single(dict.Items);
+        Assert.True(dict.Items.ContainsKey("1"));
+        Assert.Equal(5.0, Convert.ToDouble(((LiteralValue)dict.Items["1"]).Value));
+    }
+
+    [Fact]
+    public void ParseContent_NodeWithTypedDictionary_MultipleEntries_ParsesAllEntries()
+    {
+        var content = """
+            [gd_scene format=3]
+
+            [node name="Root" type="Node"]
+
+            [node name="Spawn" type="Marker3D" parent="."]
+            SpawnCounts = Dictionary[int, int]({1: 5, 2: 10, 3: 1})
+            """;
+        var scene = _parser.ParseContent(content);
+        var node = scene.FindNodeByName("Spawn");
+        Assert.NotNull(node);
+        var dict = Assert.IsType<DictionaryValue>(node.Properties["SpawnCounts"]);
+        Assert.Equal(3, dict.Items.Count);
+        Assert.Equal(5.0, Convert.ToDouble(((LiteralValue)dict.Items["1"]).Value));
+        Assert.Equal(10.0, Convert.ToDouble(((LiteralValue)dict.Items["2"]).Value));
+        Assert.Equal(1.0, Convert.ToDouble(((LiteralValue)dict.Items["3"]).Value));
+    }
 }

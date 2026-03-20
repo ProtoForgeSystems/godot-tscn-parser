@@ -291,6 +291,43 @@ public class TscnValueExtractorTests
     }
 
     [Fact]
+    public void ExtractValue_TypedDictionary_IntKeys_ReturnsDictionaryValue()
+    {
+        var value = TscnValueExtractor.ExtractValue("Dictionary[int, int]({1: 5})");
+        var dict = Assert.IsType<DictionaryValue>(value);
+        Assert.Single(dict.Items);
+        var lit = Assert.IsType<LiteralValue>(dict.Items["1"]);
+        Assert.Equal(5.0, Convert.ToDouble(lit.Value));
+    }
+
+    [Fact]
+    public void ExtractValue_TypedDictionary_MultipleEntries_ReturnsDictionaryValue()
+    {
+        var value = TscnValueExtractor.ExtractValue("Dictionary[int, int]({1: 5, 2: 10})");
+        var dict = Assert.IsType<DictionaryValue>(value);
+        Assert.Equal(2, dict.Items.Count);
+        Assert.Equal(5.0, Convert.ToDouble(((LiteralValue)dict.Items["1"]).Value));
+        Assert.Equal(10.0, Convert.ToDouble(((LiteralValue)dict.Items["2"]).Value));
+    }
+
+    [Fact]
+    public void ExtractValue_TypedDictionary_StringKeys_ReturnsDictionaryValue()
+    {
+        var value = TscnValueExtractor.ExtractValue("Dictionary[String, int]({\"key\": 42})");
+        var dict = Assert.IsType<DictionaryValue>(value);
+        Assert.Single(dict.Items);
+        Assert.Equal(42.0, Convert.ToDouble(((LiteralValue)dict.Items["key"]).Value));
+    }
+
+    [Fact]
+    public void ExtractValue_TypedDictionary_Empty_ReturnsDictionaryValue()
+    {
+        var value = TscnValueExtractor.ExtractValue("Dictionary[int, int]({})");
+        var dict = Assert.IsType<DictionaryValue>(value);
+        Assert.Empty(dict.Items);
+    }
+
+    [Fact]
     public void ExtractValue_ExtraTokens_ThrowsValueParseException()
     {
         var ex = Assert.Throws<ValueParseException>(() =>
