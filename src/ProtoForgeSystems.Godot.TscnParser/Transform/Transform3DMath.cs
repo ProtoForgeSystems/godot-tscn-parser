@@ -4,7 +4,8 @@ namespace ProtoForgeSystems.Godot.TscnParser.Transform;
 
 /// <summary>
 /// Column-major transform math for Godot .tscn Transform3D values.
-/// Godot stores the basis as column vectors: Basis[0..2] = col0, Basis[3..5] = col1, Basis[6..8] = col2.
+/// <see cref="Models.Transform3DValue.Basis"/> is stored column-major after the parser transposes
+/// Godot's row-major serialization: Basis[0..2] = col0, Basis[3..5] = col1, Basis[6..8] = col2.
 /// All methods here use this convention consistently.
 /// </summary>
 public static class Transform3DMath
@@ -39,8 +40,14 @@ public static class Transform3DMath
     /// <summary>
     /// Multiply two 3×3 bases stored column-major. Returns a new 9-element column-major array.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when either input is not exactly 9 elements.</exception>
     public static double[] MultiplyBasis(double[] a, double[] b)
     {
+        if (a.Length != 9)
+            throw new ArgumentException("Basis array must be exactly 9 elements.", nameof(a));
+        if (b.Length != 9)
+            throw new ArgumentException("Basis array must be exactly 9 elements.", nameof(b));
+
         return
         [
             a[0]*b[0]+a[3]*b[1]+a[6]*b[2],  a[1]*b[0]+a[4]*b[1]+a[7]*b[2],  a[2]*b[0]+a[5]*b[1]+a[8]*b[2],

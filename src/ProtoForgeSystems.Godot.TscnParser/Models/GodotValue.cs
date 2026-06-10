@@ -29,13 +29,13 @@ public record Vector4Value(double X, double Y, double Z, double W) : IGodotValue
 /// numbers at parse time so that <see cref="Basis"/> here is stored COLUMN-MAJOR:
 /// Basis[0..2] = col0 (local X axis in world space), Basis[3..5] = col1 (local Y axis),
 /// Basis[6..8] = col2 (local Z axis). This column-major storage is what the application/composition
-/// formulas below (and <see cref="Transform.Transform3DMath"/>) expect.
+/// formulas below (and <see cref="ProtoForgeSystems.Godot.TscnParser.Transform.Transform3DMath"/>) expect.
 ///
 /// To transform a local point (lx, ly, lz) to world space:
 ///   wx = OriginX + Basis[0]*lx + Basis[3]*ly + Basis[6]*lz
 ///   wy = OriginY + Basis[1]*lx + Basis[4]*ly + Basis[7]*lz
 ///   wz = OriginZ + Basis[2]*lx + Basis[5]*ly + Basis[8]*lz
-/// See <see cref="Transform.Transform3DMath"/> for correct composition helpers.
+/// See <see cref="ProtoForgeSystems.Godot.TscnParser.Transform.Transform3DMath"/> for correct composition helpers.
 /// </summary>
 public record Transform3DValue(
     double[] Basis,  // 9 elements, column-major: [col0.x, col0.y, col0.z, col1.x, col1.y, col1.z, col2.x, col2.y, col2.z]

@@ -546,23 +546,13 @@ public class ValueParser
         // Compose are correct. Transpose the serialized row-major numbers into column-major storage
         // here, at the format boundary, so every consumer sees a faithful column-major basis.
         // (For unrotated/translation-only transforms the transpose is a no-op.)
-        double[] row(int r) =>
-        [
-            ExtractNumber(args[(r * 3) + 0], context),
-            ExtractNumber(args[(r * 3) + 1], context),
-            ExtractNumber(args[(r * 3) + 2], context),
-        ];
-
-        double[] r0 = row(0);
-        double[] r1 = row(1);
-        double[] r2 = row(2);
-
         // Column-major: [col0.x, col0.y, col0.z, col1.x, col1.y, col1.z, col2.x, col2.y, col2.z]
-        var basis = new[]
+        // Transpose serialized row-major (args[0..2]=row0, args[3..5]=row1, args[6..8]=row2) directly.
+        var basis = new double[]
         {
-            r0[0], r1[0], r2[0],
-            r0[1], r1[1], r2[1],
-            r0[2], r1[2], r2[2],
+            ExtractNumber(args[0], context), ExtractNumber(args[3], context), ExtractNumber(args[6], context),
+            ExtractNumber(args[1], context), ExtractNumber(args[4], context), ExtractNumber(args[7], context),
+            ExtractNumber(args[2], context), ExtractNumber(args[5], context), ExtractNumber(args[8], context),
         };
 
         var originX = ExtractNumber(args[9], context);
