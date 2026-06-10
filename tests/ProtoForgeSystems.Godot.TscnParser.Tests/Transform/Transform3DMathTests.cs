@@ -177,4 +177,26 @@ public class Transform3DMathTests
         Assert.Equal(8, y, 6);
         Assert.Equal(10, z, 6);
     }
+
+    [Theory]
+    [InlineData(8)]
+    [InlineData(10)]
+    public void MultiplyBasis_InvalidLengthA_ThrowsArgumentException(int length)
+    {
+        var a = new double[length];
+        var b = new double[9];
+        var ex = Assert.Throws<ArgumentException>(() => Transform3DMath.MultiplyBasis(a, b));
+        Assert.Equal("a", ex.ParamName);
+    }
+
+    [Theory]
+    [InlineData(8)]
+    [InlineData(10)]
+    public void MultiplyBasis_InvalidLengthB_ThrowsArgumentException(int length)
+    {
+        var a = new double[9];
+        var b = new double[length];
+        var ex = Assert.Throws<ArgumentException>(() => Transform3DMath.MultiplyBasis(a, b));
+        Assert.Equal("b", ex.ParamName);
+    }
 }
