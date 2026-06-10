@@ -22,11 +22,23 @@ public record Vector4Value(double X, double Y, double Z, double W) : IGodotValue
 
 /// <summary>
 /// Transform3D with basis (3x3 rotation/scale) and origin (translation).
-/// Full form: Transform3D(r1,r2,r3, r4,r5,r6, r7,r8,r9, tx,ty,tz)
-/// Basis is stored as 9 numbers (3x3 matrix), origin is 3 numbers.
+/// Full form: Transform3D(b0,b1,b2, b3,b4,b5, b6,b7,b8, tx,ty,tz)
+///
+/// Godot serializes the basis ROW-MAJOR (the nine numbers are rows[0][0..2], rows[1][0..2],
+/// rows[2][0..2]) and applies a vector as world_i = rows[i] · local. The parser transposes those
+/// numbers at parse time so that <see cref="Basis"/> here is stored COLUMN-MAJOR:
+/// Basis[0..2] = col0 (local X axis in world space), Basis[3..5] = col1 (local Y axis),
+/// Basis[6..8] = col2 (local Z axis). This column-major storage is what the application/composition
+/// formulas below (and <see cref="ProtoForgeSystems.Godot.TscnParser.Transform.Transform3DMath"/>) expect.
+///
+/// To transform a local point (lx, ly, lz) to world space:
+///   wx = OriginX + Basis[0]*lx + Basis[3]*ly + Basis[6]*lz
+///   wy = OriginY + Basis[1]*lx + Basis[4]*ly + Basis[7]*lz
+///   wz = OriginZ + Basis[2]*lx + Basis[5]*ly + Basis[8]*lz
+/// See <see cref="ProtoForgeSystems.Godot.TscnParser.Transform.Transform3DMath"/> for correct composition helpers.
 /// </summary>
 public record Transform3DValue(
-    double[] Basis,  // 9 elements: [r1,r2,r3, r4,r5,r6, r7,r8,r9]
+    double[] Basis,  // 9 elements, column-major: [col0.x, col0.y, col0.z, col1.x, col1.y, col1.z, col2.x, col2.y, col2.z]
     double OriginX, double OriginY, double OriginZ
 ) : IGodotValue;
 

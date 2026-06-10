@@ -539,9 +539,21 @@ public class ValueParser
         if (args.Count != 12)
             throw new ValueParseException($"Transform3D expects 12 arguments, got {args.Count}", context);
 
-        var basis = new double[9];
-        for (int i = 0; i < 9; i++)
-            basis[i] = ExtractNumber(args[i], context);
+        // Godot serializes a Transform3D basis in ROW-MAJOR reading order: the nine numbers are
+        // basis.rows[0][0..2], rows[1][0..2], rows[2][0..2], and Godot applies a vector as
+        // world_i = rows[i] · local. Transform3DValue, however, stores the basis COLUMN-MAJOR
+        // (Basis[0..2] = col0 = the local X axis in world space) so that Transform3DMath.Apply /
+        // Compose are correct. Transpose the serialized row-major numbers into column-major storage
+        // here, at the format boundary, so every consumer sees a faithful column-major basis.
+        // (For unrotated/translation-only transforms the transpose is a no-op.)
+        // Column-major: [col0.x, col0.y, col0.z, col1.x, col1.y, col1.z, col2.x, col2.y, col2.z]
+        // Transpose serialized row-major (args[0..2]=row0, args[3..5]=row1, args[6..8]=row2) directly.
+        var basis = new double[]
+        {
+            ExtractNumber(args[0], context), ExtractNumber(args[3], context), ExtractNumber(args[6], context),
+            ExtractNumber(args[1], context), ExtractNumber(args[4], context), ExtractNumber(args[7], context),
+            ExtractNumber(args[2], context), ExtractNumber(args[5], context), ExtractNumber(args[8], context),
+        };
 
         var originX = ExtractNumber(args[9], context);
         var originY = ExtractNumber(args[10], context);
